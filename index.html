@@ -12384,10 +12384,8 @@ This module has been pre-configured with your Google Apps Script credentials.
                 }
             }
 
-            // SheetDB expects data wrapped in { data: [row] } format
-            const sheetDBPayload = {
-                data: [payload]
-            };
+            // SheetDB format: send as array directly
+            const sheetDBPayload = [payload];
 
             const response = await fetch(CONFIG.SHEETDB_URL, {
                 method: 'POST',
