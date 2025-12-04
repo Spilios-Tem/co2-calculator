@@ -12002,8 +12002,8 @@ This module has been pre-configured with your Google Apps Script credentials.
     // CONFIGURATION - CONFIGURED FOR PROMOWAVE
     // ========================================
     const CONFIG = {
-        WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbx9GTOEYwPb1EdbSLx7-qodkK12hgWQnWJjov4PvFCeOAnfd1pWMVbP65FXUvrpeUJNfQ/exec',
-        API_KEY: 'PromoWave2024Secure!',
+        SHEETDB_URL: 'https://sheetdb.io/api/v1/veefu05hbwpot',
+        API_KEY: 'PromoWave2024Secure!', // Not used with SheetDB, but kept for reference
         CALCULATOR_VERSION: 'V6-Enhanced',
         AUTO_SAVE_USER_NAME: true,
         AUTO_SAVE_USER_EMAIL: true
@@ -12278,8 +12278,7 @@ This module has been pre-configured with your Google Apps Script credentials.
             calculator_version: CONFIG.CALCULATOR_VERSION,
             calculation_method: dataSource.isValidated ? 'Expert validated (GREENLY)' : 'Standard lifecycle methodology (DEFRA/GLEC/Idemat)',
             material_database: window.RAW_MATERIAL_DB_VERSION || 'Idemat 2022',
-            transport_database: window.TRANSPORT_DB_VERSION || 'DEFRA 2024',
-            apiKey: CONFIG.API_KEY
+            transport_database: window.TRANSPORT_DB_VERSION || 'DEFRA 2024'
         };
 
         return payload;
@@ -12385,12 +12384,17 @@ This module has been pre-configured with your Google Apps Script credentials.
                 }
             }
 
-            const response = await fetch(CONFIG.WEB_APP_URL, {
+            // SheetDB expects data wrapped in { data: [row] } format
+            const sheetDBPayload = {
+                data: [payload]
+            };
+
+            const response = await fetch(CONFIG.SHEETDB_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(sheetDBPayload)
             });
 
             if (!response.ok) {
@@ -12399,7 +12403,8 @@ This module has been pre-configured with your Google Apps Script credentials.
 
             const result = await response.json();
 
-            if (result && (result.status === 'success' || result.result === 'success')) {
+            // SheetDB returns { created: 1 } on success
+            if (result && (result.created > 0 || result.status === 'success')) {
                 alert('✅ Calculation saved successfully to CO₂ database!\n\n' +
                       `Client: ${client}\n` +
                       `Product: ${payload.product_name}\n` +
@@ -12425,8 +12430,8 @@ This module has been pre-configured with your Google Apps Script credentials.
             alert('❌ Failed to save to database.\n\n' +
                   'Error: ' + error.message + '\n\n' +
                   'Please check:\n' +
-                  '1. Your Google Apps Script URL is correct\n' +
-                  '2. The script is deployed and accessible\n' +
+                  '1. Your SheetDB connection is active\n' +
+                  '2. Your Google Sheet is accessible\n' +
                   '3. Your internet connection is working\n\n' +
                   'See browser console for more details.');
         } finally {
