@@ -12050,10 +12050,10 @@ This module has been pre-configured with your Google Apps Script credentials.
     // ========================================
 
     function getDataSource() {
-        const productSelect = getElement('productSelect');
         const itemName = getTextValue('itemName');
         
-        if (window.PRODUCTS_LIBRARY && productSelect && productSelect.value) {
+        // Check if this product exists in PROMIDEA library by name
+        if (window.PRODUCTS_LIBRARY && itemName) {
             const product = window.PRODUCTS_LIBRARY.find(p => 
                 p.name && p.name.toLowerCase().trim() === itemName.toLowerCase().trim()
             );
@@ -12062,14 +12062,14 @@ This module has been pre-configured with your Google Apps Script credentials.
                 const calculatedTotal = getNumericValue('totalCO2');
                 const greenlyTotal = product.co2e_total;
                 const difference = Math.abs(calculatedTotal - greenlyTotal);
-                const tolerance = greenlyTotal * 0.01;
+                const tolerance = greenlyTotal * 0.01; // 1% tolerance
                 
                 if (difference <= tolerance) {
                     return {
                         source: 'PROMIDEA-GREENLY',
                         isValidated: true,
                         productId: product.name,
-                        greenlyReference: `GREENLY validated: ${greenlyTotal} kgCO2e`
+                        greenlyReference: `GREENLY validated: ${greenlyTotal.toFixed(4)} kgCO2e`
                     };
                 }
             }
