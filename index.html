@@ -11307,6 +11307,10 @@ const PRODUCTS_LIBRARY = [
                     return;
                 }
                 
+                // Make products library globally accessible for data source checking
+                window.PRODUCTS_LIBRARY = PRODUCTS_LIBRARY;
+                console.log('✅ PRODUCTS_LIBRARY assigned to window with', PRODUCTS_LIBRARY.length, 'products');
+                
                 console.log(`Populating dropdown with ${PRODUCTS_LIBRARY.length} products...`);
                 
                 PRODUCTS_LIBRARY.forEach(product => {
@@ -12309,12 +12313,21 @@ This module has been pre-configured with your Google Apps Script credentials.
     // ========================================
 
     function openModal() {
+        console.log('🔵 openModal called');
         const modal = getElement('co2LogModal');
-        if (!modal) return;
+        if (!modal) {
+            console.log('❌ Modal element not found');
+            return;
+        }
+        console.log('✅ Modal element found');
 
         const summaryEl = getElement('co2LogSummary');
         if (summaryEl) {
+            console.log('🔵 Calling buildSummaryHTML...');
             summaryEl.innerHTML = buildSummaryHTML();
+            console.log('✅ buildSummaryHTML completed');
+        } else {
+            console.log('❌ Summary element not found');
         }
 
         const orderDateEl = getElement('co2_order_date');
