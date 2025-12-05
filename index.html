@@ -12052,11 +12052,21 @@ This module has been pre-configured with your Google Apps Script credentials.
     function getDataSource() {
         const itemName = getTextValue('itemName');
         
+        console.log('=== getDataSource DEBUG ===');
+        console.log('Item Name:', itemName);
+        console.log('PRODUCTS_LIBRARY exists:', !!window.PRODUCTS_LIBRARY);
+        
         // Check if this product exists in PROMIDEA library by name
         if (window.PRODUCTS_LIBRARY && itemName) {
             const product = window.PRODUCTS_LIBRARY.find(p => 
                 p.name && p.name.toLowerCase().trim() === itemName.toLowerCase().trim()
             );
+            
+            console.log('Product found:', !!product);
+            if (product) {
+                console.log('Product name:', product.name);
+                console.log('Product GREENLY CO2:', product.co2e_total);
+            }
             
             if (product && product.co2e_total) {
                 const calculatedTotal = getNumericValue('totalCO2');
@@ -12064,17 +12074,27 @@ This module has been pre-configured with your Google Apps Script credentials.
                 const difference = Math.abs(calculatedTotal - greenlyTotal);
                 const tolerance = greenlyTotal * 0.01; // 1% tolerance
                 
+                console.log('Calculated Total:', calculatedTotal);
+                console.log('GREENLY Total:', greenlyTotal);
+                console.log('Difference:', difference);
+                console.log('Tolerance (1%):', tolerance);
+                console.log('Within tolerance?', difference <= tolerance);
+                
                 if (difference <= tolerance) {
+                    console.log('✅ RETURNING GREENLY VALIDATED');
                     return {
                         source: 'PROMIDEA-GREENLY',
                         isValidated: true,
                         productId: product.name,
                         greenlyReference: `GREENLY validated: ${greenlyTotal.toFixed(4)} kgCO2e`
                     };
+                } else {
+                    console.log('❌ Outside tolerance - returning MANUAL-CALCULATED');
                 }
             }
         }
         
+        console.log('⚙ RETURNING MANUAL-CALCULATED');
         return {
             source: 'MANUAL-CALCULATED',
             isValidated: false,
